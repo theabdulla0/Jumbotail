@@ -1,30 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 
+// Routes
+const productRoutes = require("./routes/product.routes");
+
 const app = express();
 app.use(cors());
 
-// Parse JSON bodies
 app.use(express.json());
-
-// Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
-// Request logger
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  next();
-});
-
-// Health check
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Server is healthy!",
-    timestamp: new Date().toISOString(),
-  });
-});
+// API Routes
+app.use("/api/product", productRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
@@ -33,7 +20,5 @@ app.use((req, res, next) => {
     message: `Route not found: ${req.method} ${req.url}`,
   });
 });
-
-app.use(errorMiddleware);
 
 module.exports = app;
