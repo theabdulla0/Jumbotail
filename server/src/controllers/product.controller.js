@@ -3,29 +3,33 @@ const { v4: uuidv4 } = require("uuid");
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const {
-      title,
-      description,
-      price,
-      stock,
-      category,
-      brand,
-      specs,
-      images,
-      rating,
-    } = req.body;
+    const title = req.body.title;
+    const description = req.body.description;
+    const price = req.body.price;
+    const stock = req.body.stock;
+    const category = req.body.category;
+    const brand = req.body.brand;
+    const specs = req.body.specs;
+    const images = req.body.images;
+    const rating = req.body.rating;
+
     if (!title || !price) {
       return res.status(400).json({
         success: false,
         message: "Title and Price are required",
       });
     }
-    const productId = req.body.productId || uuidv4();
+
+    let productId = req.body.productId;
+    if (!productId) {
+      productId = uuidv4();
+    }
+
     const product = await Product.create({
-      productId,
-      title,
+      productId: productId,
+      title: title,
       description: description || "",
-      price,
+      price: price,
       stock: stock || 0,
       category: category || "Electronics",
       brand: brand || "Generic",
@@ -54,7 +58,8 @@ exports.createProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { productId, metaData } = req.body;
+    const productId = req.body.productId;
+    const metaData = req.body.metaData;
 
     if (!productId || typeof metaData !== "object") {
       return res.status(400).json({
@@ -63,15 +68,33 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
+    const allowedFields = [
+      "ram",
+      "storage",
+      "display",
+      "processor",
+      "camera",
+      "battery",
+      "os",
+      "color",
+    ];
+
     const updateData = {};
-    for (let i in metaData) {
-      updateData[`specs.${i}`] = metaData[i];
+
+    for (let i = 0; i < allowedFields.length; i++) {
+      const field = allowedFields[i];
+      if (metaData[field] !== undefined) {
+        const key = "specs." + field;
+        updateData[key] = metaData[field];
+      }
     }
+
     const product = await Product.findOneAndUpdate(
-      { productId },
+      { productId: productId },
       { $set: updateData },
-      { new: true },
+      { new: true }
     );
+
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -83,7 +106,7 @@ exports.updateProduct = async (req, res) => {
       success: true,
       message: "Product metadata updated",
       data: {
-        productId,
+        productId: productId,
         metadata: product.specs,
       },
     });
@@ -100,16 +123,18 @@ exports.updateProduct = async (req, res) => {
 
 exports.getProductByID = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
     const product = await Product.findOne({ productId: id });
+
     if (!product) {
       return res.status(400).json({
         success: false,
         message: "Product not Find",
       });
     }
+
     res.status(200).json({
-      success: false,
+      success: true,
       data: product,
     });
   } catch (error) {

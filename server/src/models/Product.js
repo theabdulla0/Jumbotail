@@ -44,17 +44,16 @@ const productSchema = new mongoose.Schema(
     },
     // Metadata
     specs: {
-      ram: String,
-      storage: String,
-      display: String,
-      processor: String,
-      camera: String,
-      battery: String,
-      os: String,
-      color: String,
-      type: Map,
-      of: String,
+      ram: { type: String, default: "Not Available" },
+      storage: { type: String, default: "Not Available" },
+      display: { type: String, default: "Not Available" },
+      processor: { type: String, default: "Not Available" },
+      camera: { type: String, default: "Not Available" },
+      battery: { type: String, default: "Not Available" },
+      os: { type: String, default: "Not Available" },
+      color: { type: String, default: "Not Available" },
     },
+
     rating: {
       type: Number,
       default: 0,
@@ -75,11 +74,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    images: [
-      {
-        type: String,
-      },
-    ],
   },
   {
     timestamps: true,
